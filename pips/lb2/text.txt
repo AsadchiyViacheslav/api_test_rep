@@ -1,0 +1,182 @@
+@startuml
+
+class User {
+    -id: Long
+    -username: String
+    -phoneNumber: String
+    -password: String
+    -createdAt: LocalDateTime
+
+    +register(username:String, phone:String, password:String): User
+    +login(phone:String, password:String): boolean
+    +logout(): void
+
+    +subscribe(user:User): Subscription
+    +sendMessage(user:User, text:String): Message
+    +startStream(title:String): LiveStream
+}
+
+class Profile {
+    -id: Long
+    -userId: Long
+    -displayName: String
+    -bio: String
+    -avatarUrl: String
+
+    +updateProfile(displayName:String, bio:String): void
+    +changeAvatar(url:String): void
+}
+
+class Video {
+    -id: Long
+    -authorId: Long
+    -url: String
+    -description: String
+    -createdAt: LocalDateTime
+    -views: int
+
+    +play(): void
+    +addView(): void
+    +addLike(user:User): Like
+    +addComment(user:User, text:String): Comment
+    +saveFavorite(user:User): Favorite
+    +shareTikTok(user:User): void
+    +saveMedia(): void
+}
+
+class Comment {
+    -id: Long
+    -userId: Long
+    -videoId: Long
+    -text: String
+    -createdAt: LocalDateTime
+
+    +edit(text:String): void
+    +delete(): void
+}
+
+class Like {
+    -id: Long
+    -userId: Long
+    -videoId: Long
+    -createdAt: LocalDateTime
+
+    +delete(): void 
+}
+
+class Favorite {
+    -id: Long
+    -userId: Long
+    -videoId: Long
+    -createdAt: LocalDateTime
+
+    +delete(): void
+}
+
+class Subscription {
+    -id: Long
+    -followerId: Long
+    -followingId: Long
+    -createdAt: LocalDateTime
+
+    +delete(): void
+}
+
+class Dialog {
+    -id: Long
+
+    +sendMessage(message: Message): void
+    +getMessages(): List<Message>
+    +delete(): void
+}
+
+class Message {
+    -id: Long
+    -senderId: Long
+    -text: String
+    -createdAt: LocalDateTime
+
+    +edit(text: String): void
+    +delete(): void
+}
+
+class LiveStream {
+    -id: Long
+    -authorId: Long
+    -title: String
+    -startTime: LocalDateTime
+    -isActive: Boolean
+
+    +start(): void
+    +stop(): void
+}
+
+class SearchService {
+    +findVideo(query:String): List<Video>
+    +filterVideos(tag:String): List<Video>
+}
+
+class RecommendationService {
+    +getRecommendations(user:User): List<Video>
+}
+
+class PublicationService {
+    +uploadVideo(user:User, video:Video): void
+    +saveDraft(video:Video): void
+}
+
+class ChatService {
+    +sendMessage(from:User, to:User, text:String): Message
+    +getDialog(user1:User, user2:User): Dialog
+}
+
+'---------------------------------
+' Связи
+'---------------------------------
+
+User "1" *-- "1" Profile
+' composition (вид ассоциации) 1:1 — профиль не существует без пользователя
+
+User "1" *-- "many" Video : uploads
+' composition (вид ассоциации) 1:N — видео принадлежит пользователю и удаляется вместе с ним
+
+Video "1" *-- "many" Comment
+' composition (вид ассоциации) 1:N — комментарий не существует без видео
+
+Video "1" *-- "many" Like
+' composition (вид ассоциации) 1:N — лайки принадлежат видео
+
+Dialog "1" *-- "many" Message
+' composition (вид ассоциации) 1:N — сообщения существуют только внутри диалога
+
+User "1" *-- "many" LiveStream
+' composition (вид ассоциации) 1:N — трансляция принадлежит пользователю
+
+Favorite "many" --> "1" User
+' направленная ассоциация N:1 — пользователь сохраняет видео
+
+Favorite "many" --> "1" Video
+' направленная ассоциация N:1 — избранное относится к видео
+
+Subscription "many" --> "1" User : follower
+' направленная ассоциация N:1 — пользователь который подписался
+
+Subscription "many" --> "1" User : following
+' направленная ассоциация N:1 — пользователь на которого подписались
+
+Message "many" --> "1" User : sender
+' направленная ассоциация N:1 — сообщение знает отправителя
+
+SearchService ..> Video
+' dependency — сервис поиска использует видео
+
+RecommendationService ..> Video
+' dependency — сервис рекомендаций использует видео
+
+PublicationService ..> Video
+' dependency — сервис публикаций управляет видео
+
+ChatService ..> Dialog
+' dependency — чат сервис работает с диалогами
+
+@enduml
