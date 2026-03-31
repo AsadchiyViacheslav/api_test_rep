@@ -43,6 +43,42 @@ class MyHomePage extends StatelessWidget {
 }
 ```
 
+Пример для теории:
+
+```dart
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Пример'),
+        ),
+        body: Padding(
+          padding: EdgeInsets.all(16),
+          child: Container(
+            color: Colors.blue[100],
+            child: Column(
+              children: [
+                Icon(Icons.star, size: 40),
+                Text(
+                  'Привет Flutter',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
 LB2
 ```dart
 import 'package:flutter/material.dart';
